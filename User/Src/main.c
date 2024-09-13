@@ -29,6 +29,8 @@
 static int GetUserButtonPressed(void);
 static int GetTouchState (int *xCoord, int *yCoord);
 
+void EXTI0_IRQHandler(void);
+
 /**
  * @brief This function handles System tick timer.
  */
@@ -70,9 +72,44 @@ int main(void)
 
 	LCD_SetFont(&Font8);
 	LCD_SetColors(LCD_COLOR_MAGENTA, LCD_COLOR_BLACK); // TextColor, BackColor
-	LCD_DisplayStringAtLineMode(39, "copyright xyz", CENTER_MODE);
+	LCD_DisplayStringAtLineMode(39, "copyright Elisabeth Grosshaupt", CENTER_MODE);
 
 	int cnt = 0;
+
+
+
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	GPIO_InitTypeDef pa0;
+	pa0.Alternate = 0;
+	pa0.Mode = GPIO_MODE_OUTPUT_PP;
+	pa0.Pin = GPIO_PIN_0;
+	pa0.Pull = GPIO_NOPULL;
+	pa0.Speed = GPIO_SPEED_MEDIUM;
+	HAL_GPIO_Init(GPIOA, GPIO_PIN_0);
+
+
+
+	HAL_NVIC_EnableIRQ(IRQ0);
+
+
+
+
+
+	__HAL_RCC_GPIOG_CLK_ENABLE();
+	GPIO_InitTypeDef pg13;
+	pg13.Alternate = 0;
+	pg13.Mode = GPIO_MODE_IT_RISING;
+	pg13.Pin = GPIO_PIN_0;
+	pg13.Pull = GPIO_NOPULL;
+	pg13.Speed = GPIO_SPEED_MEDIUM;
+	HAL_GPIO_Init(GPIOG, GPIO_PIN_13);
+
+
+
+
+
+
+
 	/* Infinite loop */
 	while (1)
 	{
@@ -95,6 +132,17 @@ int main(void)
 
 	}
 }
+
+void EXTI0_IRQHandler(void){
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+
+	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
+
+
+
+}
+
+
 
 /**
  * Check if User Button has been pressed
